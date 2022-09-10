@@ -1,4 +1,4 @@
-module github.com/PereRohit/http-svc-gen
+module github.com/PereRohit/gosvc
 
 go 1.18
 
