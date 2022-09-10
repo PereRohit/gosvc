@@ -1,0 +1,37 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/PereRohit/util/response"
+)
+
+type Handler interface {
+	MethodNotAllowed(http.ResponseWriter, *http.Request)
+	RouteNotFound(http.ResponseWriter, *http.Request)
+	HealthCheck(http.ResponseWriter, *http.Request)
+}
+
+//go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mocks/internal/mock/mock_handler.go --package=mock {{.Module}}/internal/handler {{.Service}}er
+type {{.Service}}er interface {
+	Handler
+}
+
+type {{.Service}} struct {
+}
+
+func New{{.Service}}() {{.Service}}er {
+	return &{{.Service}}{}
+}
+
+func (m {{.Service}}) MethodNotAllowed(w http.ResponseWriter, _ *http.Request) {
+	response.ToJson(w, http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed), nil)
+}
+
+func (m {{.Service}}) RouteNotFound(w http.ResponseWriter, _ *http.Request) {
+	response.ToJson(w, http.StatusNotFound, http.StatusText(http.StatusNotFound), nil)
+}
+
+func (m {{.Service}}) HealthCheck(w http.ResponseWriter, _ *http.Request) {
+	response.ToJson(w, http.StatusOK, http.StatusText(http.StatusOK), nil)
+}
