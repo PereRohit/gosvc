@@ -14,12 +14,12 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/PereRohit/gosvc/internal"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
 var (
-	//go:embed resources/*
 	f embed.FS
 
 	re            = regexp.MustCompile(`[^\w]`)
@@ -143,6 +143,8 @@ func CommandRunner(command string, args ...string) {
 
 func main() {
 	flag.Parse()
+
+	f = internal.GetEmbeddedFS()
 
 	initModule := strings.TrimSpace(*moduleName)
 	if len(initModule) <= 0 {

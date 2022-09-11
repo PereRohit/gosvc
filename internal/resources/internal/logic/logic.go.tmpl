@@ -1,0 +1,26 @@
+package logic
+
+import (
+	"net/http"
+
+	respModel "github.com/PereRohit/util/model"
+	"{{.Module}}/internal/model"
+)
+
+type {{.Service}}LogicIer interface {
+	Ping(*model.PingRequest) *respModel.Response
+}
+
+type {{.Service}}Logic struct{}
+
+func New{{.Service}}Logic() {{.Service}}LogicIer {
+	return &{{.Service}}Logic{}
+}
+
+func (l {{.Service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
+	return &respModel.Response{
+		Status:  http.StatusOK,
+		Message: "Pong",
+		Data:    req.Data,
+	}
+}

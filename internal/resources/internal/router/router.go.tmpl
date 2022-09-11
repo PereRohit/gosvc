@@ -1,0 +1,37 @@
+package router
+
+import (
+	"net/http"
+
+	"github.com/PereRohit/util/constant"
+	"github.com/PereRohit/util/middleware"
+	"github.com/gorilla/mux"
+
+	"{{.Module}}/internal/handler"
+)
+
+func Register() *mux.Router {
+	m := mux.NewRouter()
+
+	m.StrictSlash(true)
+	m.Use(middleware.RequestHijacker)
+	m.Use(middleware.RecoverPanic)
+
+	commons := handler.NewCommonSvc()
+	m.HandleFunc(constant.HealthRoute, commons.HealthCheck).Methods(http.MethodGet)
+	m.NotFoundHandler = http.HandlerFunc(commons.RouteNotFound)
+	m.MethodNotAllowedHandler = http.HandlerFunc(commons.MethodNotAllowed)
+
+	// attach routes for services below
+	m = attach{{.Service}}Routes(m)
+
+	return m
+}
+
+func attach{{.Service}}Routes(m *mux.Router) *mux.Router {
+	svc := handler.New{{.Service}}()
+
+	m.HandleFunc("/ping", svc.Ping).Methods(http.MethodPost)
+
+	return m
+}

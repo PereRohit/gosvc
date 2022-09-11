@@ -1,0 +1,4 @@
+package logic
+
+//go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_logic.go --package=mock {{.Module}}/internal/logic {{.Service}}LogicIer
+
