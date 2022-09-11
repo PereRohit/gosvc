@@ -38,8 +38,7 @@ test-server
 │   │   ├── common.go
 │   │   └── handler.go
 │   ├── logic
-│   │   ├── logic.go
-│   │   └── mockgen.go
+│   │   └── logic.go
 │   ├── model
 │   │   └── model.go
 │   └── router
