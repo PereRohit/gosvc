@@ -52,9 +52,17 @@ test-server
 9 directories, 13 files
 ```
 
-### Help: only one option is available at the moment
+### Help: `init` & `version` options are available at the moment
 ```bash
 gosvc --help
+```
+#### Output
+```bash
+Usage of gosvc:
+  -init string
+        go module name
+  -version
+        version
 ```
 
 ## Server Usage

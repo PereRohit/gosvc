@@ -19,6 +19,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+const (
+	VERSION = "gosvc 0.0.3"
+)
+
 var (
 	f embed.FS
 
@@ -31,6 +35,7 @@ var (
 
 var (
 	moduleName = flag.String("init", "", "go module name")
+	version    = flag.Bool("version", false, "version")
 )
 
 func WalkAndCreate(srcPath, destPath string) {
@@ -98,16 +103,18 @@ func WalkAndCreate(srcPath, destPath string) {
 func ProcessServiceName(modulePath string) {
 	_, serviceName = filepath.Split(modulePath)
 	svcFolderName = serviceName
-	serviceName = cases.Title(language.English).String(serviceName)
+	titleCaser := cases.Title(language.English, cases.NoLower)
+	serviceName = titleCaser.String(serviceName)
 	serviceName = strings.TrimSpace(serviceName)
 	serviceName = strings.Replace(serviceName, ".", "-", -1)
+	serviceName = strings.Replace(serviceName, "_", "-", -1)
 
 	names := strings.Split(serviceName, "-")
 	newName := serviceName
 	if len(names) > 0 {
 		newName = ""
 		for _, name := range names {
-			name = cases.Title(language.English).String(name)
+			name = titleCaser.String(name)
 			newName += name
 		}
 	}
@@ -115,9 +122,12 @@ func ProcessServiceName(modulePath string) {
 
 	serviceName = re.ReplaceAllString(serviceName, "")
 
+	unexportedServiceName := cases.Lower(language.English).String(serviceName[0:1]) + serviceName[1:]
+
 	data = map[string]any{
 		"Service": serviceName,
 		"Module":  modulePath,
+		"service": unexportedServiceName,
 	}
 }
 
@@ -144,7 +154,10 @@ func CommandRunner(command string, args ...string) {
 func main() {
 	flag.Parse()
 
-	f = internal.GetEmbeddedFS()
+	if *version {
+		fmt.Fprintf(os.Stdout, "%s\n", VERSION)
+		os.Exit(0)
+	}
 
 	initModule := strings.TrimSpace(*moduleName)
 	if len(initModule) <= 0 {
@@ -152,6 +165,9 @@ func main() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
+
+	f = internal.GetEmbeddedFS()
+
 	ProcessServiceName(initModule)
 
 	WalkAndCreate("resources", "./"+svcFolderName)

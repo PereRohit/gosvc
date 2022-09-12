@@ -11,10 +11,10 @@ import (
 	"{{.Module}}/internal/model"
 )
 
-const {{.Service}}Name = "{{.Service}}"
+const {{.Service}}Name = "{{.service}}"
 
 var (
-	svc = &{{.Service}}{}
+	svc = &{{.service}}{}
 )
 
 //go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_handler.go --package=mock {{.Module}}/internal/handler {{.Service}}Handler
@@ -24,7 +24,7 @@ type {{.Service}}Handler interface {
 	Ping(w http.ResponseWriter, r *http.Request)
 }
 
-type {{.Service}} struct {
+type {{.service}} struct {
 	logic logic.{{.Service}}LogicIer
 }
 
@@ -33,14 +33,14 @@ func init() {
 }
 
 func New{{.Service}}() {{.Service}}Handler {
-	svc = &{{.Service}}{
+	svc = &{{.service}}{
 		logic: logic.New{{.Service}}Logic(),
 	}
 
 	return svc
 }
 
-func (svc {{.Service}}) HealthCheck() (svcName string, msg string, stat bool) {
+func (svc {{.service}}) HealthCheck() (svcName string, msg string, stat bool) {
 	set := false
 	defer func() {
 		svcName = {{.Service}}Name
@@ -52,7 +52,7 @@ func (svc {{.Service}}) HealthCheck() (svcName string, msg string, stat bool) {
 	return
 }
 
-func (svc {{.Service}}) Ping(w http.ResponseWriter, r *http.Request) {
+func (svc {{.service}}) Ping(w http.ResponseWriter, r *http.Request) {
 	req := &model.PingRequest{}
 
 	suggestedCode, err := request.FromJson(r, req)

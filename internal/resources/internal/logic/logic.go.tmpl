@@ -13,13 +13,13 @@ type {{.Service}}LogicIer interface {
 	Ping(*model.PingRequest) *respModel.Response
 }
 
-type {{.Service}}Logic struct{}
+type {{.service}}Logic struct{}
 
 func New{{.Service}}Logic() {{.Service}}LogicIer {
-	return &{{.Service}}Logic{}
+	return &{{.service}}Logic{}
 }
 
-func (l {{.Service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
+func (l {{.service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
 	// add your business logic here
 	return &respModel.Response{
 		Status:  http.StatusOK,
