@@ -13,6 +13,9 @@ Gos [text/template](https://pkg.go.dev/text/template) is used to generate basic 
 go install github.com/PereRohit/gosvc/cmd/gosvc@v0.0.4
 ```
 
+## Issues
+- Check the issues [here](https://github.com/PereRohit/gosvc/issues)
+
 ## Usage
 ```bash
 gosvc --init <module-name>
@@ -80,7 +83,9 @@ The baked in Health Check endpoint will internally calls checks if the service i
 **NOTE:** The health check logic needs to be custom developed as every service has their own meaning for `"OK"`. This provides a template that may be used for the custom check, only for the newly introduced service.
 ```bash
 curl -v http://localhost/health
-
+```
+#### Output
+```bash
 *   Trying 127.0.0.1:80...
 * Connected to localhost (127.0.0.1) port 80 (#0)
 > GET /health HTTP/1.1

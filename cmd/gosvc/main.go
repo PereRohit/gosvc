@@ -170,7 +170,8 @@ func main() {
 
 	ProcessServiceName(initModule)
 
-	WalkAndCreate("resources", "./"+svcFolderName)
+	svcFolder := filepath.Join(".", svcFolderName)
+	WalkAndCreate("resources", svcFolder)
 
 	absPath, err := filepath.Abs(svcFolderName)
 	if err != nil {
