@@ -3,7 +3,7 @@ package internal
 import "embed"
 
 var (
-	//go:embed resources/*
+	//go:embed resources
 	f embed.FS
 )
 

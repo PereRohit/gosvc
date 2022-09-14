@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -20,7 +21,7 @@ import (
 )
 
 const (
-	VERSION = "gosvc 0.0.4"
+	VERSION = "gosvc 0.0.5"
 )
 
 var (
@@ -38,16 +39,15 @@ var (
 	version    = flag.Bool("version", false, "version")
 )
 
-func WalkAndCreate(srcPath, destPath string) {
+func WalkAndCreate(srcPath, destPath string) error {
 	dirs, err := f.ReadDir(srcPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "read dir error: %s\n", err.Error())
-		os.Exit(1)
+		return fmt.Errorf("read dir error: %s\n", err.Error())
 	}
 	for _, dir := range dirs {
 		dirName := dir.Name()
 
-		srcFilePath := filepath.Join(srcPath, dirName)
+		srcFilePath := path.Join(srcPath, dirName)
 
 		destDirName := dirName
 		if dirName == "service" {
@@ -60,8 +60,7 @@ func WalkAndCreate(srcPath, destPath string) {
 
 			fileData, err := f.ReadFile(srcFilePath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "read file error: %s\n", err.Error())
-				return
+				return fmt.Errorf("read file error: %s\n", err.Error())
 			}
 
 			destDir, _ := filepath.Split(destFilePath)
@@ -69,35 +68,34 @@ func WalkAndCreate(srcPath, destPath string) {
 			if len(destDir) > 0 {
 				err = os.MkdirAll(destDir, os.ModePerm)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "create dir error: %s\n", err.Error())
-					return
+					return fmt.Errorf("create dir error: %s\n", err.Error())
 				}
 			}
 
-			_, srcFile := filepath.Split(srcFilePath)
-			tmpl, err := template.New(srcFile).Parse(string(fileData))
+			tmpl, err := template.New(srcFilePath).Parse(string(fileData))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "parse template error: %s\n", err.Error())
-				return
+				return fmt.Errorf("parse template error: %s\n", err.Error())
 			}
 
 			buf := bytes.NewBuffer(nil)
 			err = tmpl.Execute(buf, data)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "execute template error: %s\n", err.Error())
-				return
+				return fmt.Errorf("execute template error: %s\n", err.Error())
 			}
 			fileData = buf.Bytes()
 
 			err = ioutil.WriteFile(destFilePath, fileData, os.ModePerm)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "file write error: %s\n", err.Error())
-				return
+				return fmt.Errorf("file write error: %s\n", err.Error())
 			}
 			continue
 		}
-		WalkAndCreate(srcFilePath, destFilePath)
+		err = WalkAndCreate(srcFilePath, destFilePath)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 }
 
 func ProcessServiceName(modulePath string) {
@@ -131,7 +129,7 @@ func ProcessServiceName(modulePath string) {
 	}
 }
 
-func CommandRunner(command string, args ...string) {
+func CommandRunner(command string, args ...string) error {
 	var (
 		outBuf, errBuf bytes.Buffer
 	)
@@ -143,12 +141,12 @@ func CommandRunner(command string, args ...string) {
 	err := cmd.Run()
 	if err != nil {
 		if stdErr := errBuf.String(); stdErr != "" {
-			fmt.Fprintf(os.Stderr, "error: %s\n", stdErr)
+			err = fmt.Errorf("error: %s\n", stdErr)
 		} else {
-			fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+			err = fmt.Errorf("error: %s\n", err.Error())
 		}
-		os.Exit(1)
 	}
+	return err
 }
 
 func main() {
@@ -170,12 +168,22 @@ func main() {
 
 	ProcessServiceName(initModule)
 
-	WalkAndCreate("resources", "./"+svcFolderName)
-
 	absPath, err := filepath.Abs(svcFolderName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
+	}
+	defer func() {
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "errors obtained: %s\nAttempting cleanup...\n", err.Error())
+			err = os.RemoveAll(absPath)
+		}
+	}()
+
+	svcFolder := filepath.Join(".", svcFolderName)
+	err = WalkAndCreate("resources", svcFolder)
+	if err != nil {
+		return
 	}
 
 	err = os.Chdir(absPath)
@@ -183,6 +191,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
 	}
-	CommandRunner("go", "mod", "tidy")
-	CommandRunner("go", "generate", "./...")
+	err = CommandRunner("go", "mod", "tidy")
+	if err != nil {
+		return
+	}
+	err = CommandRunner("go", "generate", "./...")
+	if err != nil {
+		return
+	}
 }
