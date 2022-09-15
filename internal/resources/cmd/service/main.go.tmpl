@@ -25,16 +25,3 @@ func main() {
 
     	server.Run(r, svcInitCfg.SvrCfg)
 }
-package main
-
-import (
-	"github.com/PereRohit/util/server"
-
-	"{{.Module}}/internal/router"
-)
-
-func main() {
-	r := router.Register()
-
-	server.Run(r)
-}

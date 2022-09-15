@@ -35,32 +35,3 @@ func (l {{.service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
 		Data:    req.Data,
 	}
 }
-package logic
-
-import (
-	"net/http"
-
-	respModel "github.com/PereRohit/util/model"
-	"{{.Module}}/internal/model"
-)
-
-//go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_logic.go --package=mock {{.Module}}/internal/logic {{.Service}}LogicIer
-
-type {{.Service}}LogicIer interface {
-	Ping(*model.PingRequest) *respModel.Response
-}
-
-type {{.service}}Logic struct{}
-
-func New{{.Service}}Logic() {{.Service}}LogicIer {
-	return &{{.service}}Logic{}
-}
-
-func (l {{.service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
-	// add your business logic here
-	return &respModel.Response{
-		Status:  http.StatusOK,
-		Message: "Pong",
-		Data:    req.Data,
-	}
-}
