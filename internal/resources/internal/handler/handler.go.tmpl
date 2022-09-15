@@ -7,6 +7,7 @@ import (
 	"github.com/PereRohit/util/request"
 	"github.com/PereRohit/util/response"
 
+	"{{.Module}}/internal/config"
 	"{{.Module}}/internal/logic"
 	"{{.Module}}/internal/model"
 )
@@ -32,9 +33,9 @@ func init() {
 	AddHealthChecker(svc)
 }
 
-func New{{.Service}}() {{.Service}}Handler {
+func New{{.Service}}(svcCfg *config.SvcConfig) {{.Service}}Handler {
 	svc = &{{.service}}{
-		logic: logic.New{{.Service}}Logic(),
+		logic: logic.New{{.Service}}Logic(svcCfg),
 	}
 
 	return svc

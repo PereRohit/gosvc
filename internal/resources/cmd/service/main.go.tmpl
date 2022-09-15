@@ -1,13 +1,27 @@
 package main
 
 import (
+    "os"
+
+	"github.com/PereRohit/util/config"
+	"github.com/PereRohit/util/log"
 	"github.com/PereRohit/util/server"
 
+	svcCfg "{{.Module}}/internal/config"
 	"{{.Module}}/internal/router"
 )
 
 func main() {
-	r := router.Register()
+	cfg := svcCfg.Config{}
+    	err := config.LoadFromJson("./configs/config.json", &cfg)
+    	if err != nil {
+    		log.Error(err)
+    		os.Exit(1)
+    	}
 
-	server.Run(r)
+    	svcInitCfg := svcCfg.InitSvcConfig(cfg)
+
+    	r := router.Register(svcInitCfg)
+
+    	server.Run(r, svcInitCfg.SvrCfg)
 }

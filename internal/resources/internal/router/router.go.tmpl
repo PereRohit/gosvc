@@ -7,11 +7,17 @@ import (
 	"github.com/PereRohit/util/middleware"
 	"github.com/gorilla/mux"
 
+	"{{.Module}}/internal/config"
 	"{{.Module}}/internal/handler"
 )
 
-func Register() *mux.Router {
+func Register(svcCfg *config.SvcConfig) *mux.Router {
 	m := mux.NewRouter()
+
+    // group all routes for specific version. e.g.: /v1
+	if svcCfg.ServiceRouteVersion != "" {
+		m = m.PathPrefix("/" + svcCfg.ServiceRouteVersion).Subrouter()
+	}
 
 	m.StrictSlash(true)
 	m.Use(middleware.RequestHijacker)
@@ -23,13 +29,13 @@ func Register() *mux.Router {
 	m.MethodNotAllowedHandler = http.HandlerFunc(commons.MethodNotAllowed)
 
 	// attach routes for services below
-	m = attach{{.Service}}Routes(m)
+	m = attach{{.Service}}Routes(m, svcCfg)
 
 	return m
 }
 
-func attach{{.Service}}Routes(m *mux.Router) *mux.Router {
-	svc := handler.New{{.Service}}()
+func attach{{.Service}}Routes(m *mux.Router, svcCfg *config.SvcConfig) *mux.Router {
+	svc := handler.New{{.Service}}(svcCfg)
 
 	m.HandleFunc("/ping", svc.Ping).Methods(http.MethodPost)
 

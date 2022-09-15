@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	VERSION = "gosvc 0.0.5"
+	VERSION = "gosvc 0.0.6"
 )
 
 var (
