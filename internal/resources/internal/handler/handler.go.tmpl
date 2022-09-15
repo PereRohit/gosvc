@@ -7,6 +7,74 @@ import (
 	"github.com/PereRohit/util/request"
 	"github.com/PereRohit/util/response"
 
+	"{{.Module}}/internal/config"
+	"{{.Module}}/internal/logic"
+	"{{.Module}}/internal/model"
+)
+
+const {{.Service}}Name = "{{.service}}"
+
+var (
+	svc = &{{.service}}{}
+)
+
+//go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_handler.go --package=mock {{.Module}}/internal/handler {{.Service}}Handler
+
+type {{.Service}}Handler interface {
+	HealthChecker
+	Ping(w http.ResponseWriter, r *http.Request)
+}
+
+type {{.service}} struct {
+	logic logic.{{.Service}}LogicIer
+}
+
+func init() {
+	AddHealthChecker(svc)
+}
+
+func New{{.Service}}(svcCfg *config.SvcConfig) {{.Service}}Handler {
+	svc = &{{.service}}{
+		logic: logic.New{{.Service}}Logic(svcCfg),
+	}
+
+	return svc
+}
+
+func (svc {{.service}}) HealthCheck() (svcName string, msg string, stat bool) {
+	set := false
+	defer func() {
+		svcName = {{.Service}}Name
+		if !set {
+			msg = ""
+			stat = true
+		}
+	}()
+	return
+}
+
+func (svc {{.service}}) Ping(w http.ResponseWriter, r *http.Request) {
+	req := &model.PingRequest{}
+
+	suggestedCode, err := request.FromJson(r, req)
+	if err != nil {
+		response.ToJson(w, suggestedCode, fmt.Sprintf("FAILED: %s", err.Error()), nil)
+		return
+	}
+	// call logic
+	resp := svc.logic.Ping(req)
+	response.ToJson(w, resp.Status, resp.Message, resp.Data)
+	return
+}
+package handler
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/PereRohit/util/request"
+	"github.com/PereRohit/util/response"
+
 	"{{.Module}}/internal/logic"
 	"{{.Module}}/internal/model"
 )

@@ -3,6 +3,43 @@ package logic
 import (
 	"net/http"
 
+	"github.com/PereRohit/util/log"
+    respModel "github.com/PereRohit/util/model"
+
+	"{{.Module}}/internal/config"
+	"{{.Module}}/internal/model"
+)
+
+//go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_logic.go --package=mock {{.Module}}/internal/logic {{.Service}}LogicIer
+
+type {{.Service}}LogicIer interface {
+	Ping(*model.PingRequest) *respModel.Response
+}
+
+type {{.service}}Logic struct{
+	dummySvc config.DummyInternalSvc
+}
+
+func New{{.Service}}Logic(svcCfg *config.SvcConfig) {{.Service}}LogicIer {
+	return &{{.service}}Logic{
+		dummySvc: svcCfg.DummySvc,
+    }
+}
+
+func (l {{.service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
+	// add your business logic here
+	log.Info(l.dummySvc.Data)
+    return &respModel.Response{
+		Status:  http.StatusOK,
+		Message: "Pong",
+		Data:    req.Data,
+	}
+}
+package logic
+
+import (
+	"net/http"
+
 	respModel "github.com/PereRohit/util/model"
 	"{{.Module}}/internal/model"
 )
