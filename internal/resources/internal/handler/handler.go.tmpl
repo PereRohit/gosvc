@@ -7,16 +7,12 @@ import (
 	"github.com/PereRohit/util/request"
 	"github.com/PereRohit/util/response"
 
-	"{{.Module}}/internal/config"
 	"{{.Module}}/internal/logic"
 	"{{.Module}}/internal/model"
+	"{{.Module}}/internal/repo/datasource"
 )
 
 const {{.Service}}Name = "{{.service}}"
-
-var (
-	svc = &{{.service}}{}
-)
 
 //go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_handler.go --package=mock {{.Module}}/internal/handler {{.Service}}Handler
 
@@ -29,15 +25,11 @@ type {{.service}} struct {
 	logic logic.{{.Service}}LogicIer
 }
 
-func init() {
-	AddHealthChecker(svc)
-}
-
-func New{{.Service}}(svcCfg *config.SvcConfig) {{.Service}}Handler {
-	svc = &{{.service}}{
-		logic: logic.New{{.Service}}Logic(svcCfg),
+func New{{.Service}}(ds datasource.DataSource) {{.Service}}Handler {
+	svc := &{{.service}}{
+		logic: logic.New{{.Service}}Logic(ds),
 	}
-
+    AddHealthChecker(svc)
 	return svc
 }
 
@@ -50,6 +42,8 @@ func (svc {{.service}}) HealthCheck() (svcName string, msg string, stat bool) {
 			stat = true
 		}
 	}()
+	stat = svc.logic.HealthCheck()
+    set = true
 	return
 }
 

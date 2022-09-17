@@ -9,6 +9,7 @@ import (
 
 	"{{.Module}}/internal/config"
 	"{{.Module}}/internal/handler"
+	"{{.Module}}/internal/repo/datasource"
 )
 
 func Register(svcCfg *config.SvcConfig) *mux.Router {
@@ -35,7 +36,9 @@ func Register(svcCfg *config.SvcConfig) *mux.Router {
 }
 
 func attach{{.Service}}Routes(m *mux.Router, svcCfg *config.SvcConfig) *mux.Router {
-	svc := handler.New{{.Service}}(svcCfg)
+	dataSource := datasource.NewDummyDs(&svcCfg.DummySvc)
+
+	svc := handler.New{{.Service}}(dataSource)
 
 	m.HandleFunc("/ping", svc.Ping).Methods(http.MethodPost)
 
