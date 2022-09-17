@@ -1,4 +1,6 @@
 # gosvc
+![GitHub issues](https://img.shields.io/github/issues/PereRohit/gosvc?color=deep-green&label=Issues)
+
 Cli to generate skeleton HTTP server in Go with basic Health endpoints.
 
 The general [Go folder structure](https://github.com/golang-standards/project-layout) is followed.
