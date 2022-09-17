@@ -261,3 +261,5 @@ Once the skeleton project is generated for the given module following [Usage](##
   Similarly, for other services, create a directory under `repo` have an interface and corresponding file with concrete implementation.
 
 This is part of the [github.com/PereRohit/util](https://github.com/PereRohit/util) library whose functions can be used.
+
+*The demo service can be found here: [test-service](https://github.com/PereRohit/test-service)*
