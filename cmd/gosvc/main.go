@@ -15,13 +15,14 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/PereRohit/gosvc/internal"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/PereRohit/gosvc/internal"
 )
 
 const (
-	VERSION = "gosvc 0.0.6"
+	VERSION = "gosvc 0.0.7"
 )
 
 var (
@@ -32,6 +33,12 @@ var (
 	serviceName   = ""
 
 	data any
+
+	namesToReplace = map[string]string{
+		"gitignore": ".gitignore",
+		"service":   "service",
+		"github":    ".github",
+	}
 )
 
 var (
@@ -50,12 +57,13 @@ func WalkAndCreate(srcPath, destPath string) error {
 		srcFilePath := path.Join(srcPath, dirName)
 
 		destDirName := dirName
-		if dirName == "service" {
-			destDirName = svcFolderName
+		if name, replace := namesToReplace[destDirName]; replace {
+			destDirName = name
 		}
 		destFilePath := filepath.Join(destPath, destDirName)
 
 		if !dir.IsDir() {
+			tmplFile := strings.LastIndex(destFilePath, ".tmpl") != -1
 			destFilePath = strings.Replace(destFilePath, ".tmpl", "", -1)
 
 			fileData, err := f.ReadFile(srcFilePath)
@@ -72,17 +80,19 @@ func WalkAndCreate(srcPath, destPath string) error {
 				}
 			}
 
-			tmpl, err := template.New(srcFilePath).Parse(string(fileData))
-			if err != nil {
-				return fmt.Errorf("parse template error: %s\n", err.Error())
-			}
+			if tmplFile {
+				tmpl, err := template.New(srcFilePath).Parse(string(fileData))
+				if err != nil {
+					return fmt.Errorf("parse template error: %s\n", err.Error())
+				}
 
-			buf := bytes.NewBuffer(nil)
-			err = tmpl.Execute(buf, data)
-			if err != nil {
-				return fmt.Errorf("execute template error: %s\n", err.Error())
+				buf := bytes.NewBuffer(nil)
+				err = tmpl.Execute(buf, data)
+				if err != nil {
+					return fmt.Errorf("execute template error: %s\n", err.Error())
+				}
+				fileData = buf.Bytes()
 			}
-			fileData = buf.Bytes()
 
 			err = ioutil.WriteFile(destFilePath, fileData, os.ModePerm)
 			if err != nil {
@@ -99,7 +109,14 @@ func WalkAndCreate(srcPath, destPath string) error {
 }
 
 func ProcessServiceName(modulePath string) {
-	_, serviceName = filepath.Split(modulePath)
+	// extract GitHub username
+	ghUserName := ""
+	splitModule := strings.Split(modulePath, "/")
+	if len(splitModule) > 1 && splitModule[0] == "github.com" {
+		ghUserName = splitModule[1]
+	}
+
+	_, serviceName = path.Split(modulePath)
 	svcFolderName = serviceName
 	titleCaser := cases.Title(language.English, cases.NoLower)
 	serviceName = titleCaser.String(serviceName)
@@ -122,10 +139,13 @@ func ProcessServiceName(modulePath string) {
 
 	unexportedServiceName := cases.Lower(language.English).String(serviceName[0:1]) + serviceName[1:]
 
+	namesToReplace["service"] = svcFolderName
 	data = map[string]any{
-		"Service": serviceName,
-		"Module":  modulePath,
-		"service": unexportedServiceName,
+		"Service":        serviceName,
+		"Module":         modulePath,
+		"service":        unexportedServiceName,
+		"Repository":     svcFolderName,
+		"GitHubUserName": ghUserName,
 	}
 }
 
@@ -163,12 +183,20 @@ func main() {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
+	// relative module names not allowed
+	if initModule[0] == '.' ||
+		initModule[0] == '/' ||
+		initModule[0] == '\\' {
+		fmt.Fprintf(os.Stderr, "error: go module must not be relative\n")
+		os.Exit(1)
+	}
 
 	f = internal.GetEmbeddedFS()
 
 	ProcessServiceName(initModule)
 
-	absPath, err := filepath.Abs(svcFolderName)
+	svcFolder := filepath.Join(".", svcFolderName)
+	absPath, err := filepath.Abs(svcFolder)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
@@ -180,7 +208,6 @@ func main() {
 		}
 	}()
 
-	svcFolder := filepath.Join(".", svcFolderName)
 	err = WalkAndCreate("resources", svcFolder)
 	if err != nil {
 		return

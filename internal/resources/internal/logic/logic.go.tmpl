@@ -6,32 +6,48 @@ import (
 	"github.com/PereRohit/util/log"
     respModel "github.com/PereRohit/util/model"
 
-	"{{.Module}}/internal/config"
 	"{{.Module}}/internal/model"
+	"{{.Module}}/internal/repo/datasource"
 )
 
 //go:generate mockgen --build_flags=--mod=mod --destination=./../../pkg/mock/mock_logic.go --package=mock {{.Module}}/internal/logic {{.Service}}LogicIer
 
 type {{.Service}}LogicIer interface {
 	Ping(*model.PingRequest) *respModel.Response
+    HealthCheck() bool
 }
 
 type {{.service}}Logic struct{
-	dummySvc config.DummyInternalSvc
+	dummyDsSvc datasource.DataSource
 }
 
-func New{{.Service}}Logic(svcCfg *config.SvcConfig) {{.Service}}LogicIer {
+func New{{.Service}}Logic(ds datasource.DataSource) {{.Service}}LogicIer {
 	return &{{.service}}Logic{
-		dummySvc: svcCfg.DummySvc,
+		dummyDsSvc: ds,
     }
 }
 
 func (l {{.service}}Logic) Ping(req *model.PingRequest) *respModel.Response {
-	// add your business logic here
-	log.Info(l.dummySvc.Data)
+	// add business logic here
+	res, err := l.dummyDsSvc.Ping(&model.PingDs{
+    	Data: req.Data,
+    })
+    if err != nil {
+        log.Error("datasource error", err)
+    	return &respModel.Response{
+    		Status:  http.StatusInternalServerError,
+    		Message: "",
+    		Data:    nil,
+    	}
+    }
     return &respModel.Response{
-		Status:  http.StatusOK,
-		Message: "Pong",
-		Data:    req.Data,
-	}
+    	Status:  http.StatusOK,
+    	Message: "Pong",
+    	Data:    res,
+    }
+}
+
+func (l {{.service}}Logic) HealthCheck() bool {
+	// check all internal services are working fine
+	return l.dummyDsSvc.HealthCheck()
 }
