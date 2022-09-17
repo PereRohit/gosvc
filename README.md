@@ -1,5 +1,5 @@
 # gosvc
-![GitHub issues](https://img.shields.io/github/issues/PereRohit/gosvc?color=deep-green&label=Issues)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/PereRohit/gosvc) ![GitHub issues](https://img.shields.io/github/issues/PereRohit/gosvc?color=deep-green&label=Issues) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/PereRohit/gosvc?label=Release)
 
 Cli to generate skeleton HTTP server in Go with basic Health endpoints.
 
