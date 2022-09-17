@@ -17,10 +17,6 @@ Gos [text/template](https://pkg.go.dev/text/template) is used to generate basic 
 go install github.com/PereRohit/gosvc/cmd/gosvc@latest
 ```
 
-## Issues
-- Feel free to raise an issue and contribute
-- Check existing issues [here](https://github.com/PereRohit/gosvc/issues)
-
 ## Usage
 ```bash
 gosvc --init <module-name>
