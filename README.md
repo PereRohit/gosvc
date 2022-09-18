@@ -45,21 +45,27 @@ test-service
 ├── go.sum
 ├── internal
 │   ├── config
-│   │   └── config.go
+│   │   ├── config.go
+│   │   └── config_test.go
 │   ├── handler
 │   │   ├── common.go
-│   │   └── handler.go
+│   │   ├── common_test.go
+│   │   ├── handler.go
+│   │   └── handler_test.go
 │   ├── logic
-│   │   └── logic.go
+│   │   ├── logic.go
+│   │   └── logic_test.go
 │   ├── model
 │   │   ├── datasource.go
 │   │   └── request.go
 │   ├── repo
 │   │   └── datasource
 │   │       ├── dummy.go
+│   │       ├── dummy_test.go
 │   │       └── interface.go
 │   └── router
-│       └── router.go
+│       ├── router.go
+│       └── router_test.go
 └── pkg
     └── mock
         ├── mock_common.go
@@ -67,7 +73,7 @@ test-service
         ├── mock_handler.go
         └── mock_logic.go
 
-15 directories, 20 files
+15 directories, 26 files
 ```
 ### CI/CD
 [GitHub actions](https://docs.github.com/en/actions) workflows for Go project is available.
@@ -270,5 +276,7 @@ Once the skeleton project is generated for the given module following [Usage](##
   Similarly, for other services, create a directory under `repo` have an interface and corresponding file with concrete implementation.
 
 This is part of the [github.com/PereRohit/util](https://github.com/PereRohit/util) library whose functions can be used.
+
+---
 
 *The demo service can be found here: [test-service](https://github.com/PereRohit/test-service)*
