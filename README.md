@@ -73,6 +73,7 @@ test-service
 [GitHub actions](https://docs.github.com/en/actions) workflows for Go project is available.
 
 This automatically extracts the username and repo for build, tests & code coverage and injects into the generated README.md.
+
   <img width="660" alt="image" src="https://user-images.githubusercontent.com/77770177/190889727-b19fea3a-5b57-40f9-ae85-2733d26c8bd7.png">
 
 Provided, the go module name follows the pattern for `go get`
