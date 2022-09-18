@@ -14,7 +14,7 @@ Gos [text/template](https://pkg.go.dev/text/template) is used to generate basic 
 - [go](https://go.dev/dl/)
 - [mockgen](https://github.com/golang/mock#installation)
 ```bash
-go install github.com/PereRohit/gosvc/cmd/gosvc@0.0.7
+go install github.com/PereRohit/gosvc/cmd/gosvc@0.0.8
 ```
 
 ## Usage
