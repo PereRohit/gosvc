@@ -69,6 +69,16 @@ test-service
 
 15 directories, 20 files
 ```
+### CI/CD
+[GitHub actions](https://docs.github.com/en/actions) workflows for Go project is available.
+
+This automatically extracts the username and repo for build, tests & code coverage and injects into the generated README.md.
+  <img width="660" alt="image" src="https://user-images.githubusercontent.com/77770177/190889727-b19fea3a-5b57-40f9-ae85-2733d26c8bd7.png">
+
+Provided, the go module name follows the pattern for `go get`
+> github.com/GithubUserName/RepoName
+
+In case, GitHub is not used, the README.md can be updated with the proper badges for the desired code hosting service(bitbucket, gitlab, etc.) with workflows for the same.
 
 ### Help: `init` & `version` options are available at the moment
 ```bash
