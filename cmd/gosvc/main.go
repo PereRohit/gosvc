@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	VERSION = "gosvc 0.0.8"
+	VERSION = "gosvc 0.0.9"
 )
 
 var (
@@ -218,11 +218,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
 	}
-	err = CommandRunner("go", "mod", "tidy")
+
+	err = CommandRunner("go", "generate", "./...")
 	if err != nil {
 		return
 	}
-	err = CommandRunner("go", "generate", "./...")
+
+	err = CommandRunner("go", "mod", "tidy")
 	if err != nil {
 		return
 	}
