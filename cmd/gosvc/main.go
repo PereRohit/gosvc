@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	VERSION = "gosvc 0.0.9"
+	VERSION = "gosvc 0.0.10"
 )
 
 var (
@@ -217,6 +217,12 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
 		os.Exit(1)
+	}
+
+	// ISSUE #7:install required mockgen
+	err = CommandRunner("go", "install", "github.com/golang/mock/mockgen@v1.6.0")
+	if err != nil {
+		return
 	}
 
 	err = CommandRunner("go", "generate", "./...")
